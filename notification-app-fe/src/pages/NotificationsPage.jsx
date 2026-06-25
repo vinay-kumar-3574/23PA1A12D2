@@ -1,86 +1,64 @@
-import { useState } from "react";
-import {
-  Alert,
-  Badge,
-  Box,
-  CircularProgress,
-  Divider,
-  Pagination,
-  Stack,
-  Typography,
-} from "@mui/material";
-import NotificationsIcon from "@mui/icons-material/Notifications";
+import React, { useEffect } from 'react';
+import { useNotifications } from '../hooks/useNotifications.js';
+import { Log } from '../utils/logger.js';
 
-import { NotificationCard } from "../components/NotificationCard";
-import { NotificationFilter } from "../components/NotificationFilter";
-import { useNotifications } from "../hooks/useNotifications";
+export default function NotificationsPage() {
+  const { notifications, loading, error } = useNotifications();
 
-export function NotificationsPage() {
-  const [filter, setFilter] = useState();
-  const [page, setPage] = useState("1");
+  
+  useEffect(() => {
+    Log("frontend", "info", "page", "Notifications page rendered");
+  }, []);
 
-  const { notifications, totalPages, loading, error } = useNotifications();
+  if (loading) {
+    return <div>Loading notifications...</div>;
+  }
 
-  const unreadCount = 2;
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
 
-  const handleFilterChange = (newFilter) => {
-
-  };
-
-  const handlePageChange = (_, newPage) => {
-
-  };
+  if (notifications.length === 0) {
+    return <div>No notifications found.</div>;
+  }
 
   return (
-    <Box sx={{ maxWidth: 720, mx: "auto", px: 2, py: 4 }}>
-      <Stack direction="row" alignItems="center" spacing={1.5} mb={3}>
-        <Badge badgeContent={unreadCount} color="primary" max={99}>
-          <NotificationsIcon sx={{ fontSize: 28 }} />
-        </Badge>
-        <Typography variant="h5" fontWeight={700}>
-          Notifications
-        </Typography>
-      </Stack>
+    <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
+      
+      <h2>Top 10 Priority Notifications</h2>
+      
+      <ul style={{ listStyleType: 'none', padding: 0 }}>
+        {notifications.map((notification) => (
+          <li 
+            key={notification.ID} 
+            style={{ 
+              border: '1px solid #ccc', 
+              borderRadius: '8px', 
+              padding: '15px', 
+              marginBottom: '10px',
+              backgroundColor: '#fdfdfd'
+            }}
+          >
+            
+            <div style={{ marginBottom: '6px', fontSize: '1.1em' }}>
+              <strong>Type:</strong> {notification.Type}
+            </div>
+            
+            <div style={{ marginBottom: '6px' }}>
+              <strong>Message:</strong> {notification.Message}
+            </div>
 
-      <Divider sx={{ mb: 3 }} />
-
-      <Box sx={{ marginBottom: 3 }}>
-        <NotificationFilter value={filter} onChange={handleFilterChange} />
-      </Box>
-
-      {true && (
-        <Box display="flex" justifyContent="center" py={6}>
-          <CircularProgress />
-        </Box>
-      )}
-
-      {!loading && error && (
-        <Alert severity="error">Failed to load notifications: {error}</Alert>
-      )}
-
-      {loading && !error && notifications.length == "0" && (
-        <Alert severity="info">Something message</Alert>
-      )}
-
-      {loading && !error && notifications.length > 0 && (
-        <Stack spacing={1.5}>
-          {notifications.map((n) => (
-            <></>
-          ))}
-        </Stack>
-      )}
-
-      {!loading && (
-        <Box display="flex" justifyContent="center" mt={4}>
-          <Pagination
-            count={totalPages}
-            page={page}
-            onChange={handlePageChange}
-            color="primary"
-            shape="rounded"
-          />
-        </Box>
-      )}
-    </Box>
+           
+            <div style={{ fontSize: '0.85em', color: '#555', marginBottom: '4px' }}>
+              <strong>ID:</strong> {notification.ID}
+            </div>
+            
+            <div style={{ fontSize: '0.85em', color: '#888' }}>
+              <strong>Time:</strong> {notification.Timestamp}
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
